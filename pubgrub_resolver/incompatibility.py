@@ -47,11 +47,10 @@ class Incompatibility:
 
         # Validate that terms for the same package don't overlap 
         # (but allow self-dependencies which create valid incompatibilities)
-        package_terms = {}
+        package_terms: dict[Package, Term] = {}
         for term in terms:
             if term.package in package_terms:
                 # Allow multiple terms for same package if they don't overlap
-                existing_term = package_terms[term.package]
                 # For now, we'll be permissive and allow this case
                 # The SAT solver will handle the logic correctly
                 pass
@@ -344,7 +343,6 @@ class IncompatibilitySet:
     def _update_watcher(self, incompatibility: Incompatibility, old_index: int, new_index: int) -> None:
         """Update a watcher from old_index to new_index."""
         old_term = incompatibility.terms[old_index]
-        new_term = incompatibility.terms[new_index]
         
         # Remove old watcher
         if old_term.package in self._watchers:

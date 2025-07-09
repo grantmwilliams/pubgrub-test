@@ -1,16 +1,16 @@
 # PubGrub Resolver
 
-A high-performance Python implementation of the [PubGrub](https://github.com/dart-lang/pub/blob/master/doc/solver.md) version resolution algorithm, originally designed for the Dart package manager. This implementation provides a complete, production-ready solution for dependency resolution with comprehensive testing and benchmarking.
+A high-performance Python implementation of the [PubGrub](https://github.com/dart-lang/pub/blob/master/doc/solver.md) version resolution algorithm, originally designed for the Dart package manager. This implementation provides a comprehensive solution for dependency resolution with extensive testing and benchmarking. The project is actively developed with ongoing improvements to algorithm edge cases.
 
 > **Note**: This project was entirely generated using Claude Code as a demonstration of AI-assisted software development for complex algorithmic implementations.
 
 ## 🚀 Features
 
-- **Complete PubGrub Algorithm**: Full implementation with unit propagation, conflict resolution, and backtracking
-- **High Performance**: Sub-millisecond resolution for most scenarios, matching reference implementation speed
-- **Comprehensive Testing**: 56+ unit tests, property-based testing with Hypothesis, and full compatibility with pubgrub-rs test suite
+- **PubGrub Algorithm Implementation**: Core implementation with unit propagation, conflict resolution, and backtracking
+- **High Performance**: Sub-millisecond resolution for most scenarios, with performance benchmarks available
+- **Comprehensive Testing**: 128 unit tests, property-based testing with Hypothesis, and compatibility testing with pubgrub-rs test suite
 - **Interactive CLI**: User-friendly command-line interface for dependency resolution
-- **Production Ready**: Robust error handling, detailed logging, and extensible architecture
+- **Active Development**: Robust error handling, detailed logging, and extensible architecture (some edge cases still being addressed)
 - **Benchmarking Suite**: Extensive performance benchmarks comparing against reference scenarios
 
 ## 📦 Installation
@@ -24,7 +24,7 @@ A high-performance Python implementation of the [PubGrub](https://github.com/dar
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/pubgrub-resolver.git
+git clone https://github.com/your-username/pubgrub-resolver.git
 cd pubgrub-resolver
 
 # Install dependencies with uv
@@ -132,6 +132,8 @@ uv run pytest --cov=pubgrub_resolver --cov-report=html
 uv run pytest tests/test_pubgrub_examples.py  # pubgrub-rs compatibility tests
 uv run pytest tests/test_property_based.py   # Property-based tests
 ```
+
+**Note**: Some tests are currently failing as the algorithm implementation is being refined. The project is in active development with ongoing improvements to edge case handling.
 
 ### Benchmarking
 
@@ -284,4 +286,4 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ---
 
-*This project serves as a demonstration of AI-assisted development capabilities, showcasing how complex algorithmic implementations can be successfully completed with AI collaboration.*
+*This project serves as a demonstration of AI-assisted development capabilities, showcasing how complex algorithmic implementations can be developed with AI collaboration. The project is actively being refined and improved.*

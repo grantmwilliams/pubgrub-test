@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from pubgrub_resolver.resolver import PubGrubResolver
 from pubgrub_resolver.dependency_provider import DependencyProvider
 from pubgrub_resolver.package import Package, Dependency
-from pubgrub_resolver.version import Version, VersionRange, parse_version_constraint
+from pubgrub_resolver.version import Version, parse_version_constraint
 
 class TestDependencyProvider(DependencyProvider):
     def __init__(self, scenario_data):

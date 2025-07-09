@@ -1,6 +1,5 @@
 """Tests for VersionSet complement operation."""
 
-import pytest
 from pubgrub_resolver.version import Version, VersionRange, VersionSet
 
 

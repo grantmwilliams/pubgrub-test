@@ -2,7 +2,6 @@
 
 import json
 import sys
-from pathlib import Path
 from datetime import datetime
 
 def generate_html_report(comparison_results, output_file):
@@ -167,7 +166,7 @@ def main():
     generate_html_report(comparison_results, html_file)
     generate_csv_report(comparison_results, csv_file)
     
-    print(f"Reports generated:")
+    print("Reports generated:")
     print(f"  HTML: {html_file}")
     print(f"  CSV: {csv_file}")
 

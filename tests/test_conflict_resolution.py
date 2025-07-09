@@ -1,6 +1,5 @@
 """Tests for conflict resolution and CDCL functionality."""
 
-import pytest
 from pubgrub_resolver.dependency_provider import SimpleDependencyProvider
 from pubgrub_resolver.package import Dependency
 from pubgrub_resolver.version import Version, VersionRange
@@ -104,7 +103,7 @@ class TestConflictResolution:
         root_package = provider.get_package_by_name("root")
 
         resolver = PubGrubResolver(provider)
-        result = resolver.resolve(root_package, Version("1.0.0"))
+        resolver.resolve(root_package, Version("1.0.0"))
 
         # Get resolution statistics
         stats = resolver.get_resolution_statistics()
@@ -173,7 +172,7 @@ class TestConflictResolution:
         root_package = provider.get_package_by_name("root")
 
         resolver = PubGrubResolver(provider)
-        result = resolver.resolve(root_package, Version("1.0.0"))
+        resolver.resolve(root_package, Version("1.0.0"))
 
         # Check that the conflict resolver has learned clauses
         learned_clauses = resolver.conflict_resolver.learned_clauses
@@ -193,7 +192,7 @@ class TestConflictResolution:
         root_package = provider.get_package_by_name("root")
 
         resolver = PubGrubResolver(provider)
-        result = resolver.resolve(root_package, Version("1.0.0"))
+        resolver.resolve(root_package, Version("1.0.0"))
 
         # Check that conflicts were tracked
         conflict_history = resolver.conflict_resolver.conflict_history
@@ -213,7 +212,7 @@ class TestConflictResolution:
         root_package = provider.get_package_by_name("root")
 
         resolver = PubGrubResolver(provider)
-        result = resolver.resolve(root_package, Version("1.0.0"))
+        resolver.resolve(root_package, Version("1.0.0"))
 
         # Get statistics to check backtracking behavior
         stats = resolver.get_resolution_statistics()

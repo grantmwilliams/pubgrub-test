@@ -6,12 +6,11 @@ and dependencies without excessive performance degradation.
 """
 
 import time
-from typing import List
 
 import pytest
 
 from pubgrub_resolver.dependency_provider import SimpleDependencyProvider
-from pubgrub_resolver.package import Package, Dependency
+from pubgrub_resolver.package import Dependency
 from pubgrub_resolver.version import Version, VersionRange
 from pubgrub_resolver.resolver import solve_dependencies
 

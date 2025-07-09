@@ -1,7 +1,6 @@
 """Performance tests for unit propagation optimization."""
 
 import time
-import pytest
 from pubgrub_resolver.dependency_provider import SimpleDependencyProvider
 from pubgrub_resolver.package import Dependency
 from pubgrub_resolver.version import Version, VersionRange

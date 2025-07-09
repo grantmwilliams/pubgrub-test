@@ -6,13 +6,12 @@ These tests generate random dependency graphs and verify that the resolver behav
 """
 
 import random
-from typing import Dict, List, Set, Tuple
+from typing import List
 
-from hypothesis import given, strategies as st, settings, assume
-from hypothesis.stateful import RuleBasedStateMachine, Bundle, rule, invariant
+from hypothesis import given, strategies as st, settings
 
 from pubgrub_resolver.dependency_provider import SimpleDependencyProvider
-from pubgrub_resolver.package import Package, Dependency
+from pubgrub_resolver.package import Dependency
 from pubgrub_resolver.version import Version, VersionRange
 from pubgrub_resolver.resolver import solve_dependencies
 
