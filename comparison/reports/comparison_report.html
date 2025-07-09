@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PubGrub Implementation Comparison Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .header { background-color: #f0f0f0; padding: 20px; border-radius: 5px; }
+        .scenario { margin: 20px 0; border: 1px solid #ddd; border-radius: 5px; }
+        .scenario-header { background-color: #f8f8f8; padding: 10px; border-bottom: 1px solid #ddd; }
+        .scenario-content { padding: 15px; }
+        .success { color: #2e7d32; }
+        .failure { color: #c62828; }
+        .mismatch { color: #f57c00; }
+        .performance { background-color: #e3f2fd; padding: 10px; border-radius: 3px; margin: 10px 0; }
+        .code { background-color: #f5f5f5; padding: 10px; border-radius: 3px; font-family: monospace; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .metric { display: inline-block; margin: 5px 15px 5px 0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>PubGrub Implementation Comparison Report</h1>
+        <p>Generated on: 2025-07-09 17:23:42</p>
+        <p>Total scenarios tested: 3</p>
+    </div>
+    
+    <div class="summary">
+        <h2>Summary</h2>
+
+        <div class="metric">Agreement Rate: 3/3 (100.0%)</div>
+        <div class="metric">Both Succeeded: 2</div>
+        <div class="metric">Both Failed: 1</div>
+        <div class="metric">Python Total Time: 1.9ms</div>
+        <div class="metric">Rust Total Time: 1.3ms</div>
+        <div class="metric">Average Speedup: 1.76x</div>
+    </div>
+    
+    <h2>Detailed Results</h2>
+
+    <div class="scenario">
+        <div class="scenario-header">
+            <h3>basic_scenario <span class="success">✓ Agreement</span></h3>
+            <p>Simple dependency resolution with basic constraints</p>
+        </div>
+        <div class="scenario-content">
+            <div class="performance">
+                <strong>Performance:</strong>
+                Python: 0.3ms | 
+                Rust: 0.2ms |
+                Speedup: 1.54x
+            </div>
+            
+            <table>
+                <tr><th>Implementation</th><th>Success</th><th>Solution</th><th>Error</th></tr>
+                <tr>
+                    <td>Python</td>
+                    <td class="success">
+                        ✓
+                    </td>
+                    <td><div class="code">{
+  "root": "1.0.0",
+  "web-framework": "2.0.0",
+  "database": "2.0.0",
+  "logging": "1.2.0"
+}</div></td>
+                    <td><div class="code">None</div></td>
+                </tr>
+                <tr>
+                    <td>Rust</td>
+                    <td class="success">
+                        ✓
+                    </td>
+                    <td><div class="code">{
+  "root": "1.0.0",
+  "logging": "1.2.0",
+  "web-framework": "2.0.0",
+  "database": "2.0.0"
+}</div></td>
+                    <td><div class="code">None</div></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="scenario">
+        <div class="scenario-header">
+            <h3>conflict_scenario <span class="failure">✓ Both Failed</span></h3>
+            <p>Scenario with conflicting dependencies that should fail resolution</p>
+        </div>
+        <div class="scenario-content">
+            <div class="performance">
+                <strong>Performance:</strong>
+                Python: 0.4ms | 
+                Rust: 0.7ms |
+                Speedup: 0.51x
+            </div>
+            
+            <table>
+                <tr><th>Implementation</th><th>Success</th><th>Solution</th><th>Error</th></tr>
+                <tr>
+                    <td>Python</td>
+                    <td class="failure">
+                        ✗
+                    </td>
+                    <td><div class="code">None</div></td>
+                    <td><div class="code">Conflict at decision level 0: Conflict with shared-dep >=1.0.0, <2.0.0 at level 0
+Learned clause: NOT package-a >=2.0.0, <=2.0.0 ∨ NOT package-b >=2.0.0, <=2.0.0 (because learned from conflict at level 0)
+Involving 2 incompatibilities</div></td>
+                </tr>
+                <tr>
+                    <td>Rust</td>
+                    <td class="failure">
+                        ✗
+                    </td>
+                    <td><div class="code">None</div></td>
+                    <td><div class="code">NoSolution(Derived(Derived { terms: {"root": Positive(Ranges { segments: [(Included(100), Included(100))] })}, shared_id: None, cause1: Derived(Derived { terms: {"root": Positive(Ranges { segments: [(Included(100), Included(100))] }), "package-a": Positive(Ranges { segments: [(Included(100), Unbounded)] })}, shared_id: None, cause1: Derived(Derived { terms: {"package-b": Positive(Ranges { segments: [(Included(100), Unbounded)] }), "package-a": Positive(Ranges { segments: [(Included(100), Unbounded)] })}, shared_id: None, cause1: Derived(Derived { terms: {"package-b": Positive(Ranges { segments: [(Included(100), Unbounded)] }), "package-a": Positive(Ranges { segments: [(Included(100), Included(100)), (Included(200), Included(200))] })}, shared_id: None, cause1: Derived(Derived { terms: {"package-b": Positive(Ranges { segments: [(Included(100), Unbounded)] }), "shared-dep": Negative(Ranges { segments: [(Included(200), Unbounded)] })}, shared_id: None, cause1: External(FromDependencyOf("package-b", Ranges { segments: [(Included(100), Included(100)), (Included(200), Included(200))] }, "shared-dep", Ranges { segments: [(Included(200), Unbounded)] })), cause2: External(NoVersions("package-b", Ranges { segments: [(Excluded(100), Excluded(200)), (Excluded(200), Unbounded)] })) }), cause2: External(FromDependencyOf("package-a", Ranges { segments: [(Included(100), Included(100)), (Included(200), Included(200))] }, "shared-dep", Ranges { segments: [(Included(100), Excluded(200))] })) }), cause2: External(NoVersions("package-a", Ranges { segments: [(Excluded(100), Excluded(200)), (Excluded(200), Unbounded)] })) }), cause2: External(FromDependencyOf("root", Ranges { segments: [(Included(100), Included(100))] }, "package-b", Ranges { segments: [(Included(100), Unbounded)] })) }), cause2: External(FromDependencyOf("root", Ranges { segments: [(Included(100), Included(100))] }, "package-a", Ranges { segments: [(Included(100), Unbounded)] })) }))</div></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="scenario">
+        <div class="scenario-header">
+            <h3>performance_scenario <span class="success">✓ Agreement</span></h3>
+            <p>Large scenario for performance testing with many packages and versions</p>
+        </div>
+        <div class="scenario-content">
+            <div class="performance">
+                <strong>Performance:</strong>
+                Python: 1.2ms | 
+                Rust: 0.4ms |
+                Speedup: 3.22x
+            </div>
+            
+            <table>
+                <tr><th>Implementation</th><th>Success</th><th>Solution</th><th>Error</th></tr>
+                <tr>
+                    <td>Python</td>
+                    <td class="success">
+                        ✓
+                    </td>
+                    <td><div class="code">{
+  "root": "1.0.0",
+  "web-framework": "2.2.0",
+  "database": "2.1.0",
+  "logging": "2.0.0",
+  "utils": "2.0.0",
+  "serialization": "2.0.0",
+  "crypto": "2.0.0"
+}</div></td>
+                    <td><div class="code">None</div></td>
+                </tr>
+                <tr>
+                    <td>Rust</td>
+                    <td class="success">
+                        ✓
+                    </td>
+                    <td><div class="code">{
+  "root": "1.0.0",
+  "logging": "2.0.0",
+  "web-framework": "2.2.0",
+  "crypto": "2.0.0",
+  "serialization": "2.0.0",
+  "database": "2.1.0",
+  "utils": "2.0.0"
+}</div></td>
+                    <td><div class="code">None</div></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -446,6 +446,32 @@ def parse_version_constraint(constraint: str) -> VersionRange:
     if constraint == "*" or constraint == "":
         return VersionRange()
 
+    # Handle compound constraints like ">=1.0.0,<2.0.0"
+    if "," in constraint:
+        parts = [part.strip() for part in constraint.split(",")]
+        min_version = None
+        max_version = None
+        min_inclusive = False
+        max_inclusive = False
+
+        for part in parts:
+            if part.startswith(">="):
+                min_version = Version(part[2:].strip())
+                min_inclusive = True
+            elif part.startswith(">"):
+                min_version = Version(part[1:].strip())
+                min_inclusive = False
+            elif part.startswith("<="):
+                max_version = Version(part[2:].strip())
+                max_inclusive = True
+            elif part.startswith("<"):
+                max_version = Version(part[1:].strip())
+                max_inclusive = False
+            else:
+                raise ValueError(f"Unsupported constraint part: {part}")
+
+        return VersionRange(min_version, max_version, min_inclusive, max_inclusive)
+
     # Handle specific version
     if re.match(r"^\d+\.\d+\.\d+", constraint):
         version = Version(constraint)

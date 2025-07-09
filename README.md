@@ -146,6 +146,74 @@ uv run python benchmarks/bench_backtracking.py
 uv run pytest benchmarks/test_bench_pytest.py --benchmark-only
 ```
 
+## 🔄 Implementation Comparison
+
+This project includes both Python and Rust implementations (via git submodule) with a comprehensive comparison framework.
+
+### Running Comparisons
+
+```bash
+# Run all comparison tests and generate reports
+./comparison/scripts/run_all_tests.sh
+
+# Compare specific scenarios
+./comparison/scripts/compare_implementations.py comparison/test_data/basic_scenario.json
+
+# Run individual implementations
+./comparison/scripts/run_python.py comparison/test_data/basic_scenario.json
+./comparison/scripts/run_rust.sh comparison/test_data/basic_scenario.json
+
+# Generate reports from existing results
+./comparison/scripts/generate_report.py comparison/outputs/results.json comparison/reports/my_report
+```
+
+### Test Scenarios
+
+The comparison framework includes several test scenarios:
+
+- **basic_scenario.json** - Simple dependency resolution
+- **conflict_scenario.json** - Conflicting dependencies that should fail
+- **performance_scenario.json** - Larger scenario for performance testing
+
+### Adding New Test Scenarios
+
+Create JSON files in `comparison/test_data/` with this format:
+
+```json
+{
+  "name": "my_scenario",
+  "description": "Description of test case",
+  "packages": [
+    {
+      "name": "package_name",
+      "versions": ["1.0.0", "1.1.0", "2.0.0"]
+    }
+  ],
+  "dependencies": [
+    {
+      "package": "package_name",
+      "version": "1.0.0",
+      "dependency": "other_package",
+      "constraint": ">=1.0.0"
+    }
+  ]
+}
+```
+
+### Reports
+
+The comparison framework generates:
+
+- **HTML Report** - Interactive web-based comparison with detailed metrics
+- **CSV Report** - Tabular data for spreadsheet analysis
+- **JSON Results** - Raw comparison data for further processing
+
+Reports include:
+- Success/failure agreement between implementations
+- Performance metrics and speedup factors
+- Solution comparisons
+- Error analysis
+
 ## 📊 Performance
 
 The resolver demonstrates excellent performance across various scenarios:

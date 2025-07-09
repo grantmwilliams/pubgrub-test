@@ -1,0 +1,60 @@
+{
+  "name": "conflict_scenario",
+  "description": "Scenario with conflicting dependencies that should fail resolution",
+  "packages": [
+    {
+      "name": "root",
+      "versions": ["1.0.0"]
+    },
+    {
+      "name": "package-a",
+      "versions": ["1.0.0", "2.0.0"]
+    },
+    {
+      "name": "package-b",
+      "versions": ["1.0.0", "2.0.0"]
+    },
+    {
+      "name": "shared-dep",
+      "versions": ["1.0.0", "2.0.0"]
+    }
+  ],
+  "dependencies": [
+    {
+      "package": "root",
+      "version": "1.0.0",
+      "dependency": "package-a",
+      "constraint": ">=1.0.0"
+    },
+    {
+      "package": "root",
+      "version": "1.0.0",
+      "dependency": "package-b",
+      "constraint": ">=1.0.0"
+    },
+    {
+      "package": "package-a",
+      "version": "1.0.0",
+      "dependency": "shared-dep",
+      "constraint": ">=1.0.0,<2.0.0"
+    },
+    {
+      "package": "package-a",
+      "version": "2.0.0",
+      "dependency": "shared-dep",
+      "constraint": ">=1.0.0,<2.0.0"
+    },
+    {
+      "package": "package-b",
+      "version": "1.0.0",
+      "dependency": "shared-dep",
+      "constraint": ">=2.0.0"
+    },
+    {
+      "package": "package-b",
+      "version": "2.0.0",
+      "dependency": "shared-dep",
+      "constraint": ">=2.0.0"
+    }
+  ]
+}
