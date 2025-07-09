@@ -208,3 +208,8 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+
+# Project Specific
+rust_implementation/ # repo of the rust version for Claude to test against
+
