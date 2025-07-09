@@ -5,9 +5,12 @@ This CLI provides an interactive way to test the resolver with custom
 dependency scenarios and analyze resolution performance.
 """
 
-import argparse
 import json
+import sys
 import time
+from typing import Optional
+
+import click
 
 from .dependency_provider import SimpleDependencyProvider
 from .package import Package, Dependency
@@ -353,6 +356,10 @@ class PubGrubCLI:
             except KeyboardInterrupt:
                 print("\nGoodbye!")
                 break
+            except EOFError:
+                print("\nReceived EOF signal - exiting interactive mode.")
+                print("This typically happens when input is redirected or piped.")
+                break
             except Exception as e:
                 print(f"Error: {e}")
 
@@ -412,36 +419,34 @@ def create_example_scenario(cli: PubGrubCLI) -> None:
     print("Try: resolve root 1.0.0")
 
 
-def main():
-    """Main CLI entry point."""
-    parser = argparse.ArgumentParser(description="PubGrub Resolver CLI")
-    parser.add_argument("--scenario", help="Load scenario from JSON file")
-    parser.add_argument(
-        "--example", action="store_true", help="Create example scenario"
-    )
-    parser.add_argument(
-        "--resolve",
-        nargs=2,
-        metavar=("PACKAGE", "VERSION"),
-        help="Resolve dependencies for package@version",
-    )
-    parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
-
-    args = parser.parse_args()
-
+@click.command()
+@click.option("--scenario", help="Load scenario from JSON file")
+@click.option("--example", is_flag=True, help="Create example scenario and run non-interactively")
+@click.option("--resolve", nargs=2, metavar="PACKAGE VERSION", help="Resolve dependencies for package@version")
+@click.option("--verbose", "-v", is_flag=True, help="Verbose output")
+def main(scenario: Optional[str], example: bool, resolve: Optional[tuple[str, str]], verbose: bool):
+    """PubGrub Resolver CLI - A dependency resolution tool."""
     cli = PubGrubCLI()
-
+    
     # Load scenario if specified
-    if args.scenario:
-        cli.load_scenario(args.scenario)
-    elif args.example:
+    if scenario:
+        cli.load_scenario(scenario)
+    elif example:
         create_example_scenario(cli)
-
+        # For example mode, run a sample resolution instead of interactive mode
+        print("Running example resolution...")
+        cli.resolve("root", "1.0.0", verbose)
+        return
+    
     # Resolve if specified
-    if args.resolve:
-        package, version = args.resolve
-        cli.resolve(package, version, args.verbose)
+    if resolve:
+        package, version = resolve
+        cli.resolve(package, version, verbose)
     else:
+        # Check if we're in a TTY before running interactive mode
+        if not sys.stdin.isatty():
+            click.echo("Error: Interactive mode requires a TTY. Use --example or --resolve for non-interactive usage.")
+            sys.exit(1)
         # Run interactive mode
         cli.run_interactive()
 

@@ -18,9 +18,9 @@ A high-performance Python implementation of the [PubGrub](https://github.com/dar
 ### Prerequisites
 
 - Python 3.12 or higher
-- [uv](https://github.com/astral-sh/uv) (recommended) or pip
+- [uv](https://github.com/astral-sh/uv)
 
-### Using uv (Recommended)
+### Installation
 
 ```bash
 # Clone the repository
@@ -34,55 +34,51 @@ uv sync
 uv run python -m pubgrub_resolver.cli --help
 ```
 
-### Using pip
-
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/pubgrub-resolver.git
-cd pubgrub-resolver
-
-# Create a virtual environment
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-
-# Install the package
-pip install -e .
-
-# Run the CLI
-pubgrub --help
-```
-
 ## 🎯 Quick Start
 
-### Interactive CLI
+### CLI Usage
 
-The easiest way to explore the resolver is through the interactive CLI:
+The CLI provides both interactive and non-interactive modes:
 
 ```bash
-# Start interactive mode
+# View all available options
+uv run python -m pubgrub_resolver.cli --help
+
+# Run example scenario (non-interactive)
+uv run python -m pubgrub_resolver.cli --example
+
+# Resolve specific package version
+uv run python -m pubgrub_resolver.cli --resolve root 1.0.0
+
+# Load scenario from JSON file
+uv run python -m pubgrub_resolver.cli --scenario examples/simple_example.json
+
+# Start interactive mode (requires TTY)
 uv run python -m pubgrub_resolver.cli
 
-# Available commands:
-# - add <package_name>: Add a new package
-# - version <package_name> <version>: Add a version to a package
-# - depend <package_name> <version> <dep_name> <constraint>: Add a dependency
-# - resolve <package_name> <version>: Resolve dependencies
+# Interactive commands:
+# - add-package <name> <version1> [version2] ...: Add a package with versions
+# - add-dep <pkg> <ver> <dep> <constraint>: Add a dependency
+# - resolve <package> <version>: Resolve dependencies
 # - show: Display all packages and versions
 # - save <filename>: Save scenario to JSON
 # - load <filename>: Load scenario from JSON
 # - example: Create an example scenario
 # - help: Show help message
-# - exit: Exit the program
+# - quit/exit: Exit the program
 ```
 
 ### Example: Simple Resolution
 
 ```bash
-# Create and resolve an example scenario
+# Create and resolve an example scenario (non-interactive)
 uv run python -m pubgrub_resolver.cli --example
 
-# Or load and resolve a pre-defined scenario
-uv run python -m pubgrub_resolver.cli --scenario examples/simple_example.json --resolve root 1.0.0
+# Resolve dependencies for a specific package
+uv run python -m pubgrub_resolver.cli --resolve root 1.0.0
+
+# Load scenario from JSON file
+uv run python -m pubgrub_resolver.cli --scenario examples/simple_example.json
 ```
 
 ### Programmatic Usage
