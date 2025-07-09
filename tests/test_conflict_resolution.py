@@ -62,40 +62,44 @@ class TestConflictResolution:
         # Should find a solution by using older versions
         assert result.success is True
         assert result.solution is not None
-        
+
         # Get the solution assignments
         assignments = {
             assignment.package.name: assignment.version
             for assignment in result.solution.get_all_assignments()
         }
-        
+
         # Should have assigned versions for all packages
         assert "root" in assignments
         assert "a" in assignments
         assert "b" in assignments
         assert "c" in assignments
-        
+
         # Verify the solution is consistent
         assert assignments["root"] == Version("1.0.0")
-        
+
         # Verify the solution satisfies all constraints
         # If a=2.0.0 and b=2.0.0, then we have a conflict (impossible)
         # So the resolver should avoid this combination
         a_version = assignments["a"]
-        b_version = assignments["b"] 
+        b_version = assignments["b"]
         c_version = assignments["c"]
-        
+
         if a_version == Version("2.0.0") and b_version == Version("2.0.0"):
             # This combination should be impossible due to conflicting c requirements
             assert False, "Invalid solution: a=2.0.0 and b=2.0.0 creates conflict on c"
-        
+
         # If a=2.0.0, then c must be >= 2.0.0
         if a_version == Version("2.0.0"):
-            assert c_version >= Version("2.0.0"), f"a=2.0.0 requires c>=2.0.0, got c={c_version}"
-        
+            assert c_version >= Version("2.0.0"), (
+                f"a=2.0.0 requires c>=2.0.0, got c={c_version}"
+            )
+
         # If b=2.0.0, then c must be < 2.0.0
         if b_version == Version("2.0.0"):
-            assert c_version < Version("2.0.0"), f"b=2.0.0 requires c<2.0.0, got c={c_version}"
+            assert c_version < Version("2.0.0"), (
+                f"b=2.0.0 requires c<2.0.0, got c={c_version}"
+            )
 
     def test_conflict_resolution_statistics(self):
         """Test that conflict resolution provides useful statistics."""
@@ -107,14 +111,14 @@ class TestConflictResolution:
 
         # Get resolution statistics
         stats = resolver.get_resolution_statistics()
-        
+
         # Should provide useful statistics
         assert isinstance(stats, dict)
         assert "total_assignments" in stats
         assert "total_conflicts" in stats
         assert "total_incompatibilities" in stats
         assert "max_decision_level" in stats
-        
+
         # Should have made assignments
         assert stats["total_assignments"] > 0
         assert stats["total_conflicts"] >= 0
@@ -176,15 +180,15 @@ class TestConflictResolution:
 
         # Check that the conflict resolver has learned clauses
         learned_clauses = resolver.conflict_resolver.learned_clauses
-        
+
         # Should have learned some clauses during resolution
         # (The exact number depends on the resolution path)
         assert isinstance(learned_clauses, list)
-        
+
         # Each learned clause should be an Incompatibility
         for clause in learned_clauses:
-            assert hasattr(clause, 'terms')
-            assert hasattr(clause, 'kind')
+            assert hasattr(clause, "terms")
+            assert hasattr(clause, "kind")
 
     def test_conflict_history_tracking(self):
         """Test that conflict history is properly tracked."""
@@ -196,15 +200,15 @@ class TestConflictResolution:
 
         # Check that conflicts were tracked
         conflict_history = resolver.conflict_resolver.conflict_history
-        
+
         # Should have a history of conflicts
         assert isinstance(conflict_history, list)
-        
+
         # Each conflict should have the required fields
         for conflict in conflict_history:
-            assert hasattr(conflict, 'conflicting_incompatibilities')
-            assert hasattr(conflict, 'decision_level')
-            assert hasattr(conflict, 'explanation')
+            assert hasattr(conflict, "conflicting_incompatibilities")
+            assert hasattr(conflict, "decision_level")
+            assert hasattr(conflict, "explanation")
 
     def test_non_chronological_backtracking(self):
         """Test that non-chronological backtracking is used."""
@@ -216,11 +220,11 @@ class TestConflictResolution:
 
         # Get statistics to check backtracking behavior
         stats = resolver.get_resolution_statistics()
-        
+
         # Should have statistics about backtracking
         assert "max_decision_level" in stats
         assert "total_conflicts" in stats
-        
+
         # Statistics should be valid
         assert stats["max_decision_level"] >= 0
         assert stats["total_conflicts"] >= 0

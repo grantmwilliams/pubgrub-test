@@ -308,7 +308,9 @@ class VersionRange:
 class VersionSet:
     """Represents a set of version ranges (union of disjoint ranges)."""
 
-    def __init__(self, ranges: list[VersionRange] | None = None, normalize: bool = True) -> None:
+    def __init__(
+        self, ranges: list[VersionRange] | None = None, normalize: bool = True
+    ) -> None:
         """Initialize with a list of version ranges."""
         self.ranges = ranges or []
         if normalize:
@@ -367,59 +369,72 @@ class VersionSet:
         for r in self.ranges:
             if not r.is_empty():
                 normalized_ranges.append(r)
-        
+
         if not normalized_ranges:
             return VersionSet([VersionRange()])
-        
+
         # Sort ranges by their minimum version
-        sorted_ranges = sorted(normalized_ranges, key=lambda r: (r.min_version or Version("0.0.0"), r.include_min))
-        
+        sorted_ranges = sorted(
+            normalized_ranges,
+            key=lambda r: (r.min_version or Version("0.0.0"), r.include_min),
+        )
+
         complement_ranges = []
-        
+
         # Handle the range before the first range
         first_range = sorted_ranges[0]
         if first_range.min_version is not None:
             # Add range from negative infinity to the start of first range
-            complement_ranges.append(VersionRange(
-                min_version=None,
-                max_version=first_range.min_version,
-                include_min=True,
-                include_max=not first_range.include_min
-            ))
-        
+            complement_ranges.append(
+                VersionRange(
+                    min_version=None,
+                    max_version=first_range.min_version,
+                    include_min=True,
+                    include_max=not first_range.include_min,
+                )
+            )
+
         # Handle gaps between ranges
         for i in range(len(sorted_ranges) - 1):
             current_range = sorted_ranges[i]
             next_range = sorted_ranges[i + 1]
-            
+
             # Check if there's a gap between current and next range
-            if current_range.max_version is not None and next_range.min_version is not None:
+            if (
+                current_range.max_version is not None
+                and next_range.min_version is not None
+            ):
                 # There's a potential gap
-                if (current_range.max_version < next_range.min_version or
-                    (current_range.max_version == next_range.min_version and
-                     not (current_range.include_max and next_range.include_min))):
+                if current_range.max_version < next_range.min_version or (
+                    current_range.max_version == next_range.min_version
+                    and not (current_range.include_max and next_range.include_min)
+                ):
                     # Add the gap as a range
-                    complement_ranges.append(VersionRange(
-                        min_version=current_range.max_version,
-                        max_version=next_range.min_version,
-                        include_min=not current_range.include_max,
-                        include_max=not next_range.include_min
-                    ))
-        
+                    complement_ranges.append(
+                        VersionRange(
+                            min_version=current_range.max_version,
+                            max_version=next_range.min_version,
+                            include_min=not current_range.include_max,
+                            include_max=not next_range.include_min,
+                        )
+                    )
+
         # Handle the range after the last range
         last_range = sorted_ranges[-1]
         if last_range.max_version is not None:
             # Add range from end of last range to positive infinity
-            complement_ranges.append(VersionRange(
-                min_version=last_range.max_version,
-                max_version=None,
-                include_min=not last_range.include_max,
-                include_max=False
-            ))
-        
+            complement_ranges.append(
+                VersionRange(
+                    min_version=last_range.max_version,
+                    max_version=None,
+                    include_min=not last_range.include_max,
+                    include_max=False,
+                )
+            )
+
         # Filter out empty ranges
         complement_ranges = [r for r in complement_ranges if not r.is_empty()]
-        
+
         return VersionSet(complement_ranges, normalize=False)
 
     def __str__(self) -> str:

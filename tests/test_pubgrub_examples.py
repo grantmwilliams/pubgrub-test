@@ -481,9 +481,7 @@ class TestPubGrubRegressionTests:
         provider.add_dependency(
             a,
             Version("1.0.0"),
-            Dependency(
-                a, VersionRange(Version("2.0.0"), Version("2.0.0"), True, True)
-            ),
+            Dependency(a, VersionRange(Version("2.0.0"), Version("2.0.0"), True, True)),
         )
 
         result = solve_dependencies(provider, a, Version("1.0.0"))
@@ -540,7 +538,9 @@ class TestPubGrubRegressionTests:
         # All results should be identical
         first_result = results[0]
         for result in results[1:]:
-            assert result == first_result, "Resolver should produce deterministic results"
+            assert result == first_result, (
+                "Resolver should produce deterministic results"
+            )
 
     def test_should_always_find_satisfier(self):
         """Test cases where no satisfier can be found."""

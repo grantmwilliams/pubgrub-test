@@ -422,13 +422,25 @@ def create_example_scenario(cli: PubGrubCLI) -> None:
 
 @click.command()
 @click.option("--scenario", help="Load scenario from JSON file")
-@click.option("--example", is_flag=True, help="Create example scenario and run non-interactively")
-@click.option("--resolve", nargs=2, metavar="PACKAGE VERSION", help="Resolve dependencies for package@version")
+@click.option(
+    "--example", is_flag=True, help="Create example scenario and run non-interactively"
+)
+@click.option(
+    "--resolve",
+    nargs=2,
+    metavar="PACKAGE VERSION",
+    help="Resolve dependencies for package@version",
+)
 @click.option("--verbose", "-v", is_flag=True, help="Verbose output")
-def main(scenario: Optional[str], example: bool, resolve: Optional[tuple[str, str]], verbose: bool):
+def main(
+    scenario: Optional[str],
+    example: bool,
+    resolve: Optional[tuple[str, str]],
+    verbose: bool,
+):
     """PubGrub Resolver CLI - A dependency resolution tool."""
     cli = PubGrubCLI()
-    
+
     # Load scenario if specified
     if scenario:
         cli.load_scenario(scenario)
@@ -438,7 +450,7 @@ def main(scenario: Optional[str], example: bool, resolve: Optional[tuple[str, st
         print("Running example resolution...")
         cli.resolve("root", "1.0.0", verbose)
         return
-    
+
     # Resolve if specified
     if resolve:
         package, version = resolve
@@ -446,7 +458,9 @@ def main(scenario: Optional[str], example: bool, resolve: Optional[tuple[str, st
     else:
         # Check if we're in a TTY before running interactive mode
         if not sys.stdin.isatty():
-            click.echo("Error: Interactive mode requires a TTY. Use --example or --resolve for non-interactive usage.")
+            click.echo(
+                "Error: Interactive mode requires a TTY. Use --example or --resolve for non-interactive usage."
+            )
             sys.exit(1)
         # Run interactive mode
         cli.run_interactive()

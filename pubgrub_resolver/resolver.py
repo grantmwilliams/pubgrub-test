@@ -114,14 +114,16 @@ class PubGrubResolver:
                     conflict_analysis = self.conflict_resolver.analyze_conflict(
                         unit_clause, self.solution, self.incompatibilities.get_all()
                     )
-                    
+
                     if conflict_analysis.backtrack_level < 0:
-                        return ResolutionResult(False, None, conflict_analysis.explanation)
-                    
+                        return ResolutionResult(
+                            False, None, conflict_analysis.explanation
+                        )
+
                     # Add learned clause to prevent same conflict
                     if conflict_analysis.learned_clause:
                         self.incompatibilities.add(conflict_analysis.learned_clause)
-                    
+
                     # Non-chronological backtracking
                     self.solution.backtrack(conflict_analysis.backtrack_level)
                     changed = True
@@ -134,14 +136,16 @@ class PubGrubResolver:
                         conflict_analysis = self.conflict_resolver.analyze_conflict(
                             unit_clause, self.solution, self.incompatibilities.get_all()
                         )
-                        
+
                         if conflict_analysis.backtrack_level < 0:
-                            return ResolutionResult(False, None, conflict_analysis.explanation)
-                        
+                            return ResolutionResult(
+                                False, None, conflict_analysis.explanation
+                            )
+
                         # Add learned clause to prevent same conflict
                         if conflict_analysis.learned_clause:
                             self.incompatibilities.add(conflict_analysis.learned_clause)
-                        
+
                         # Non-chronological backtracking
                         self.solution.backtrack(conflict_analysis.backtrack_level)
                         changed = True
@@ -184,7 +188,7 @@ class PubGrubResolver:
             if not compatible_versions:
                 # No compatible versions available - this is a conflict
                 return False
-                
+
             # Filter versions that would create future conflicts
             conflict_free_versions = []
             for version in compatible_versions:
@@ -219,7 +223,7 @@ class PubGrubResolver:
                     f"version {version} excluded by constraint",
                 )
                 self.incompatibilities.add(incompatibility)
-        
+
         return True
 
     def _add_package_dependencies(self, package: Package, version: Version) -> None:
@@ -232,9 +236,11 @@ class PubGrubResolver:
                 if not dependency.version_range.contains(version):
                     # Self-dependency is impossible - this should fail immediately
                     from .incompatibility import Incompatibility, IncompatibilityKind
+
                     failure_incompatibility = Incompatibility(
-                        [], IncompatibilityKind.CONFLICT, 
-                        f"{package.name}@{version} has unsatisfiable self-dependency on {dependency.version_range}"
+                        [],
+                        IncompatibilityKind.CONFLICT,
+                        f"{package.name}@{version} has unsatisfiable self-dependency on {dependency.version_range}",
                     )
                     self.incompatibilities.add(failure_incompatibility)
                     return

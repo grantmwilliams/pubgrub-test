@@ -79,14 +79,14 @@ class Term:
             # This is A AND NOT B = A - B (set difference)
             self_set = VersionSet([self.version_range])
             other_set = VersionSet([other.version_range])
-            
+
             # Compute A - B = A ∩ complement(B)
             other_complement = other_set.complement()
             difference_set = self_set.intersect(other_complement)
-            
+
             if difference_set.is_empty():
                 return None
-            
+
             # If result is a single range, we can represent it as a positive term
             if len(difference_set.ranges) == 1:
                 return Term(self.package, difference_set.ranges[0], True)
@@ -99,14 +99,14 @@ class Term:
             # This is NOT A AND B = B - A (set difference)
             self_set = VersionSet([self.version_range])
             other_set = VersionSet([other.version_range])
-            
+
             # Compute B - A = B ∩ complement(A)
             self_complement = self_set.complement()
             difference_set = other_set.intersect(self_complement)
-            
+
             if difference_set.is_empty():
                 return None
-            
+
             # If result is a single range, we can represent it as a positive term
             if len(difference_set.ranges) == 1:
                 return Term(self.package, difference_set.ranges[0], True)
