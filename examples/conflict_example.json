@@ -1,0 +1,46 @@
+{
+  "packages": [
+    {
+      "name": "root",
+      "versions": ["1.0.0"]
+    },
+    {
+      "name": "library-a",
+      "versions": ["1.0.0", "2.0.0"]
+    },
+    {
+      "name": "library-b",
+      "versions": ["1.0.0", "2.0.0"]
+    },
+    {
+      "name": "shared-dependency",
+      "versions": ["1.0.0", "2.0.0"]
+    }
+  ],
+  "dependencies": [
+    {
+      "package": "root",
+      "version": "1.0.0",
+      "dependency": "library-a",
+      "constraint": ">=1.0.0"
+    },
+    {
+      "package": "root",
+      "version": "1.0.0",
+      "dependency": "library-b",
+      "constraint": ">=1.0.0"
+    },
+    {
+      "package": "library-a",
+      "version": "2.0.0",
+      "dependency": "shared-dependency",
+      "constraint": ">=2.0.0"
+    },
+    {
+      "package": "library-b",
+      "version": "2.0.0",
+      "dependency": "shared-dependency",
+      "constraint": "<2.0.0"
+    }
+  ]
+}

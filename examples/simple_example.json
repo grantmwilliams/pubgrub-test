@@ -1,0 +1,46 @@
+{
+  "packages": [
+    {
+      "name": "root",
+      "versions": ["1.0.0"]
+    },
+    {
+      "name": "web-framework",
+      "versions": ["1.0.0", "1.1.0", "2.0.0"]
+    },
+    {
+      "name": "database",
+      "versions": ["1.0.0", "1.5.0", "2.0.0"]
+    },
+    {
+      "name": "logging",
+      "versions": ["1.0.0", "1.2.0"]
+    }
+  ],
+  "dependencies": [
+    {
+      "package": "root",
+      "version": "1.0.0",
+      "dependency": "web-framework",
+      "constraint": ">=1.0.0"
+    },
+    {
+      "package": "root",
+      "version": "1.0.0",
+      "dependency": "database",
+      "constraint": ">=1.0.0"
+    },
+    {
+      "package": "web-framework",
+      "version": "1.1.0",
+      "dependency": "logging",
+      "constraint": ">=1.0.0"
+    },
+    {
+      "package": "web-framework",
+      "version": "2.0.0",
+      "dependency": "logging",
+      "constraint": ">=1.2.0"
+    }
+  ]
+}
