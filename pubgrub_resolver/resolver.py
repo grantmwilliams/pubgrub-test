@@ -99,6 +99,11 @@ class PubGrubResolver:
         while changed:
             changed = False
 
+            # Check for failure incompatibilities first
+            for incompatibility in self.incompatibilities.get_all():
+                if incompatibility.is_failure():
+                    return ResolutionResult(False, None, incompatibility.cause)
+
             # Find unit clauses
             unit_clauses = self.incompatibilities.find_unit_clauses(self.solution)
 
@@ -222,6 +227,18 @@ class PubGrubResolver:
         dependencies = self.provider.get_dependencies(package, version)
 
         for dependency in dependencies:
+            # Special case: check for impossible self-dependencies before creating incompatibility
+            if dependency.package == package:
+                if not dependency.version_range.contains(version):
+                    # Self-dependency is impossible - this should fail immediately
+                    from .incompatibility import Incompatibility, IncompatibilityKind
+                    failure_incompatibility = Incompatibility(
+                        [], IncompatibilityKind.CONFLICT, 
+                        f"{package.name}@{version} has unsatisfiable self-dependency on {dependency.version_range}"
+                    )
+                    self.incompatibilities.add(failure_incompatibility)
+                    return
+
             # Create dependency incompatibility
             dependency_term = Term(dependency.package, dependency.version_range, True)
             incompatibility = create_dependency_incompatibility(
@@ -312,7 +329,7 @@ class PubGrubResolver:
                     return False
 
         # Also check if this version would create future conflicts
-        return self._would_create_future_conflicts(package, version)
+        return not self._would_create_future_conflicts(package, version)
 
     def _would_create_future_conflicts(
         self, package: Package, version: Version
@@ -325,6 +342,12 @@ class PubGrubResolver:
         for dependency in dependencies:
             dep_package = dependency.package
             dep_range = dependency.version_range
+
+            # Special case: self-dependency
+            if dep_package == package:
+                # If package depends on itself, check if the chosen version satisfies the dependency
+                if not dep_range.contains(version):
+                    return True  # Would create conflict - package version doesn't satisfy its own dependency
 
             # Check if this dependency conflicts with existing constraints for the same package
             for incompatibility in self.incompatibilities.get_for_package(dep_package):
