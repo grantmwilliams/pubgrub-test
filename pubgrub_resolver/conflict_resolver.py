@@ -62,7 +62,7 @@ class ConflictResolver:
             # No specific incompatibilities found - this is a root conflict
             return ConflictAnalysis(
                 learned_clause=None,
-                backtrack_level=0,
+                backtrack_level=-1,  # Indicate unsolvable
                 explanation="Root conflict - no solution exists",
             )
 
@@ -183,10 +183,12 @@ class ConflictResolver:
             return sorted_levels[1]
         elif len(sorted_levels) == 1:
             # Backtrack one level below the conflict
-            return max(0, sorted_levels[0] - 1)
+            backtrack = sorted_levels[0] - 1
+            return backtrack if backtrack >= 0 else -1  # Return -1 if unsolvable
         else:
             # No specific level found, backtrack one level
-            return max(0, solution.decision_level - 1)
+            backtrack = solution.decision_level - 1
+            return backtrack if backtrack >= 0 else -1  # Return -1 if unsolvable
 
     def _generate_explanation(
         self, conflict_cause: ConflictCause, learned_clause: Incompatibility | None

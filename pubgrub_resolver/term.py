@@ -53,35 +53,65 @@ class Term:
             # Union the sets (A OR B)
             union_set = set1.union(set2)
 
-            # For now, we'll handle the simple case where union results in a single range
-            if len(union_set.ranges) == 1:
-                # We can represent NOT (single range) as a negative term
-                return Term(self.package, union_set.ranges[0], False)
-            else:
-                # Multiple disjoint ranges - this is complex to represent with a single Term
-                # For now, return None to indicate we need a more complex Term representation
+            # The complement of the union gives us NOT (A OR B)
+            complement_set = union_set.complement()
+
+            # If complement is empty, return None (no valid versions)
+            if complement_set.is_empty():
                 return None
+
+            # If complement has exactly one range, we can represent it as a positive term
+            if len(complement_set.ranges) == 1:
+                return Term(self.package, complement_set.ranges[0], True)
+            else:
+                # Multiple disjoint ranges - we need to represent this as a negative term
+                # of the union, which is what we computed above
+                if len(union_set.ranges) == 1:
+                    return Term(self.package, union_set.ranges[0], False)
+                else:
+                    # For now, return None for very complex cases
+                    return None
 
         # One positive, one negative
         if self.positive and not other.positive:
             # self is positive, other is negative
             # We want versions that are in self but not in other
-            intersected_range = self.version_range.intersect(other.version_range)
-            if intersected_range is None or intersected_range.is_empty():
-                # No overlap, so positive term is unaffected
-                return Term(self.package, self.version_range, True)
+            # This is A AND NOT B = A - B (set difference)
+            self_set = VersionSet([self.version_range])
+            other_set = VersionSet([other.version_range])
+            
+            # Compute A - B = A ∩ complement(B)
+            other_complement = other_set.complement()
+            difference_set = self_set.intersect(other_complement)
+            
+            if difference_set.is_empty():
+                return None
+            
+            # If result is a single range, we can represent it as a positive term
+            if len(difference_set.ranges) == 1:
+                return Term(self.package, difference_set.ranges[0], True)
             else:
-                # There's overlap - this creates a conflict
+                # Multiple ranges - for now return None for complex cases
                 return None
         else:
             # self is negative, other is positive
             # We want versions that are in other but not in self
-            intersected_range = self.version_range.intersect(other.version_range)
-            if intersected_range is None or intersected_range.is_empty():
-                # No overlap, so positive term is unaffected
-                return Term(self.package, other.version_range, True)
+            # This is NOT A AND B = B - A (set difference)
+            self_set = VersionSet([self.version_range])
+            other_set = VersionSet([other.version_range])
+            
+            # Compute B - A = B ∩ complement(A)
+            self_complement = self_set.complement()
+            difference_set = other_set.intersect(self_complement)
+            
+            if difference_set.is_empty():
+                return None
+            
+            # If result is a single range, we can represent it as a positive term
+            if len(difference_set.ranges) == 1:
+                return Term(self.package, difference_set.ranges[0], True)
             else:
-                # There's overlap - this creates a conflict
+                # Multiple ranges - for now return None for complex cases
                 return None
 
     def satisfies(self, other: Term) -> bool:

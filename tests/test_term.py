@@ -146,8 +146,13 @@ class TestTerm:
         term2 = Term(pkg, VersionRange(v3, v2), False)  # NOT [1.5.0, 2.0.0)
 
         intersection = term1.intersect(term2)
-        # There's overlap, so this should create a conflict
-        assert intersection is None
+        # Should compute [1.0.0, 2.0.0) ∩ NOT [1.5.0, 2.0.0) = [1.0.0, 1.5.0)
+        assert intersection is not None
+        assert intersection.positive is True
+        assert intersection.version_range.min_version == v1
+        assert intersection.version_range.max_version == v3
+        assert intersection.version_range.include_min is True
+        assert intersection.version_range.include_max is False
 
     def test_term_intersection_different_packages(self):
         """Test intersection of terms for different packages."""

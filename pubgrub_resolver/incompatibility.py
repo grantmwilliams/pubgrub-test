@@ -218,6 +218,12 @@ class IncompatibilitySet:
     def __init__(self) -> None:
         self.incompatibilities: list[Incompatibility] = []
         self._by_package: dict[Package, list[Incompatibility]] = {}
+        # Watched literals optimization
+        self._watched_literals: dict[Incompatibility, list[int]] = {}  # incompatibility -> [term_index1, term_index2]
+        self._watchers: dict[Package, list[tuple[Incompatibility, int]]] = {}  # package -> [(incompatibility, term_index)]
+        # Optimization cache
+        self._satisfied_cache: dict[Incompatibility, bool] = {}
+        self._last_solution_level: int = -1
 
     def add(self, incompatibility: Incompatibility) -> None:
         """Add an incompatibility to the set."""
@@ -228,24 +234,122 @@ class IncompatibilitySet:
             if package not in self._by_package:
                 self._by_package[package] = []
             self._by_package[package].append(incompatibility)
+        
+        # Initialize watched literals
+        self._initialize_watched_literals(incompatibility)
 
     def get_for_package(self, package: Package) -> list[Incompatibility]:
         """Get all incompatibilities involving a specific package."""
         return self._by_package.get(package, [])
+    
+    def _initialize_watched_literals(self, incompatibility: Incompatibility) -> None:
+        """Initialize watched literals for an incompatibility."""
+        terms = incompatibility.terms
+        if len(terms) == 0:
+            # No terms to watch
+            self._watched_literals[incompatibility] = []
+            return
+        elif len(terms) == 1:
+            # Watch the single term
+            self._watched_literals[incompatibility] = [0]
+            self._add_watcher(incompatibility, 0)
+        else:
+            # Watch the first two terms
+            self._watched_literals[incompatibility] = [0, 1]
+            self._add_watcher(incompatibility, 0)
+            self._add_watcher(incompatibility, 1)
+    
+    def _add_watcher(self, incompatibility: Incompatibility, term_index: int) -> None:
+        """Add a watcher for a specific term in an incompatibility."""
+        term = incompatibility.terms[term_index]
+        package = term.package
+        
+        if package not in self._watchers:
+            self._watchers[package] = []
+        self._watchers[package].append((incompatibility, term_index))
 
     def get_all(self) -> list[Incompatibility]:
         """Get all incompatibilities."""
         return self.incompatibilities.copy()
 
     def find_unit_clauses(self, solution: PartialSolution) -> list[Term]:
-        """Find all unit clauses given a partial solution."""
+        """Find all unit clauses given a partial solution with optimized checking."""
         unit_clauses = []
+        
+        # Clear cache if solution level changed (backtracking occurred)
+        if hasattr(solution, 'decision_level') and solution.decision_level != self._last_solution_level:
+            self._satisfied_cache.clear()
+            self._last_solution_level = solution.decision_level
+        
+        # Use the original implementation but with some optimizations
         for incompatibility in self.incompatibilities:
+            # Check cache first
+            if incompatibility in self._satisfied_cache:
+                if self._satisfied_cache[incompatibility]:
+                    continue
+            
+            # Quick check: if incompatibility is already satisfied, skip it
+            is_satisfied = self._is_satisfied_quick_check(incompatibility, solution)
+            self._satisfied_cache[incompatibility] = is_satisfied
+            
+            if is_satisfied:
+                continue
+            
             unit_clause = incompatibility.get_unit_clause(solution)
             if unit_clause is not None:
                 unit_clauses.append(unit_clause)
+        
         return unit_clauses
+    
+    def _is_satisfied_quick_check(self, incompatibility: Incompatibility, solution: PartialSolution) -> bool:
+        """Quick check if an incompatibility is satisfied without full computation."""
+        # Check if any term is satisfied (making the whole clause satisfied)
+        for term in incompatibility.terms:
+            assignment = solution.get_assignment(term.package)
+            if assignment is not None:
+                if self._term_satisfied_by_assignment(term, assignment):
+                    return True
+        return False
 
+    def _term_satisfied_by_assignment(self, term: Term, assignment) -> bool:
+        """Check if a term is satisfied by an assignment."""
+        # This is a simplified check - in a real implementation we'd need to check
+        # if the assigned version satisfies the term's constraints
+        if term.positive:
+            return term.version_range.contains(assignment.version)
+        else:
+            return not term.version_range.contains(assignment.version)
+    
+    def _find_new_watched_literal(self, incompatibility: Incompatibility, old_index: int, solution: PartialSolution) -> int | None:
+        """Find a new literal to watch when the current one becomes false."""
+        watched_indices = self._watched_literals[incompatibility]
+        
+        # Try to find an unassigned or satisfied literal to watch
+        for i, term in enumerate(incompatibility.terms):
+            if i == old_index or i in watched_indices:
+                continue  # Skip the old watched literal and currently watched ones
+            
+            assignment = solution.get_assignment(term.package)
+            if assignment is None or self._term_satisfied_by_assignment(term, assignment):
+                return i
+        
+        return None
+    
+    def _update_watcher(self, incompatibility: Incompatibility, old_index: int, new_index: int) -> None:
+        """Update a watcher from old_index to new_index."""
+        old_term = incompatibility.terms[old_index]
+        new_term = incompatibility.terms[new_index]
+        
+        # Remove old watcher
+        if old_term.package in self._watchers:
+            self._watchers[old_term.package] = [
+                (inc, idx) for inc, idx in self._watchers[old_term.package]
+                if not (inc == incompatibility and idx == old_index)
+            ]
+        
+        # Add new watcher
+        self._add_watcher(incompatibility, new_index)
+    
     def find_satisfied(self, solution: PartialSolution) -> list[Incompatibility]:
         """Find all incompatibilities satisfied by a partial solution."""
         return [inc for inc in self.incompatibilities if inc.is_satisfied_by(solution)]

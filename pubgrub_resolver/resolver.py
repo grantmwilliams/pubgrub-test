@@ -105,13 +105,20 @@ class PubGrubResolver:
             for unit_clause in unit_clauses:
                 # Check if this creates a conflict
                 if self._creates_conflict(unit_clause):
-                    # For now, use simple conflict resolution
-                    current_level = self.solution.decision_level
-                    if current_level <= 0:
-                        return ResolutionResult(False, None, "Unsolvable conflict")
-
-                    # Simple backtracking - go back one level
-                    self.solution.backtrack(current_level - 1)
+                    # Use conflict-driven clause learning (CDCL)
+                    conflict_analysis = self.conflict_resolver.analyze_conflict(
+                        unit_clause, self.solution, self.incompatibilities.get_all()
+                    )
+                    
+                    if conflict_analysis.backtrack_level < 0:
+                        return ResolutionResult(False, None, conflict_analysis.explanation)
+                    
+                    # Add learned clause to prevent same conflict
+                    if conflict_analysis.learned_clause:
+                        self.incompatibilities.add(conflict_analysis.learned_clause)
+                    
+                    # Non-chronological backtracking
+                    self.solution.backtrack(conflict_analysis.backtrack_level)
                     changed = True
                     break
                 else:
@@ -119,12 +126,19 @@ class PubGrubResolver:
                     success = self._apply_unit_clause(unit_clause)
                     if not success:
                         # Unit clause application failed - this is a conflict
-                        current_level = self.solution.decision_level
-                        if current_level <= 0:
-                            return ResolutionResult(False, None, "Unsolvable conflict")
+                        conflict_analysis = self.conflict_resolver.analyze_conflict(
+                            unit_clause, self.solution, self.incompatibilities.get_all()
+                        )
                         
-                        # Simple backtracking - go back one level
-                        self.solution.backtrack(current_level - 1)
+                        if conflict_analysis.backtrack_level < 0:
+                            return ResolutionResult(False, None, conflict_analysis.explanation)
+                        
+                        # Add learned clause to prevent same conflict
+                        if conflict_analysis.learned_clause:
+                            self.incompatibilities.add(conflict_analysis.learned_clause)
+                        
+                        # Non-chronological backtracking
+                        self.solution.backtrack(conflict_analysis.backtrack_level)
                         changed = True
                         break
                     changed = True

@@ -8,7 +8,7 @@ dependency scenarios and analyze resolution performance.
 import json
 import sys
 import time
-from typing import Optional
+from typing import Optional, Any
 
 import click
 
@@ -179,8 +179,9 @@ class PubGrubCLI:
             if result.success:
                 print("✅ Resolution successful!")
                 print("\nSolution:")
-                for assignment in result.solution.get_all_assignments():
-                    print(f"  {assignment.package.name} = {assignment.version}")
+                if result.solution is not None:
+                    for assignment in result.solution.get_all_assignments():
+                        print(f"  {assignment.package.name} = {assignment.version}")
 
                 if verbose:
                     # Create a resolver to get statistics
@@ -262,7 +263,7 @@ class PubGrubCLI:
 
     def save_scenario(self, filename: str) -> None:
         """Save current scenario to a JSON file."""
-        data = {"packages": [], "dependencies": []}
+        data: dict[str, list[dict[str, Any]]] = {"packages": [], "dependencies": []}
 
         # Save packages
         for name, package in self.packages.items():
